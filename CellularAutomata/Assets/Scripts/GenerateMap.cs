@@ -6,9 +6,9 @@ using UnityEngine;
 public class GenerateMap : MonoBehaviour
 {
     private float chanceToStartAlive = 0.45f;
-    public float birthLimit = 4;
-    public float deathLimit = 2;
-    private float numberOfSteps = 2;
+    private float birthLimit = 3;
+    private float deathLimit = 2;
+    private float numberOfSteps = 1;
     private float tileSpacing = 1.0f;
     bool[,] cellmap = new bool[100,100];
     public GameObject[] tiles = new GameObject[2];
@@ -49,7 +49,7 @@ public class GenerateMap : MonoBehaviour
                         newMap[i, j] = true;
                     }
                 }
-                else
+                else //Otherwise, if the cell is dead now, check if it has the right number of neighbours to be 'born'
                 {
                     if (nbs > birthLimit)
                     {
@@ -113,12 +113,12 @@ public class GenerateMap : MonoBehaviour
 
     private void GenerateWorld()
     {
-        InitializeMap(cellmap);
+        bool[,] finalMap = new bool[100,100];
         for (int i = 0; i < numberOfSteps; i++)
         {
-            DoSimulationStep(cellmap);
+            finalMap = DoSimulationStep(InitializeMap(cellmap));
         }
-        PopulateWorld(cellmap);
+        PopulateWorld(finalMap);
     }
     
     // Start is called before the first frame update
