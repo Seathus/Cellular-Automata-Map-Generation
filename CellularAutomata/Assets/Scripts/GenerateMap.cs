@@ -1,25 +1,36 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class GenerateMap : MonoBehaviour
 {
-    private float chanceToStartAlive = 0.45f;
+    [Range(0,100)]
+    private float chanceToStartAlive = 45.0f;
     private float birthLimit = 3;
     private float deathLimit = 2;
     private float numberOfSteps = 1;
     private float tileSpacing = 1.0f;
     bool[,] cellmap = new bool[100,100];
+    [SerializeField]
+    private string seed;
     public GameObject[] tiles = new GameObject[2];
+    public bool useRandomSeed;
 
     private bool[,] InitializeMap(bool[,] map)
     {
+        if (useRandomSeed)
+        {
+            seed = DateTime.Now.Ticks.ToString();
+        }
+        System.Random pseudoRandom = new System.Random(seed.GetHashCode());
         for (int i = 0; i < map.GetLength(0); i++)
         {
             for (int j = 0; j < map.GetLength(1); j++)
             {
-                if (Random.Range(0.0f, 1.0f) < chanceToStartAlive)
+                if (pseudoRandom.Next(0, 100) < chanceToStartAlive)
                 {
                     map[i, j] = true;
                 }
@@ -125,11 +136,17 @@ public class GenerateMap : MonoBehaviour
     void Start()
     {
         GenerateWorld();
+        
+        
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            GenerateWorld();
+        }
     }
 }
