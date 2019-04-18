@@ -7,18 +7,22 @@ using UnityEngine;
 
 public class GenerateMap : MonoBehaviour
 {
-    [Range(0,100)]
+    [Range(0,100)] [SerializeField]
     private float chanceToStartAlive = 45.0f;
-    private float birthLimit = 3;
-    private float deathLimit = 2;
-    private float numberOfSteps = 1;
+    [Range(0,20)] [SerializeField]
+    private float birthLimit = 11;
+    [Range(0,20)] [SerializeField]
+    private float deathLimit = 5;
+    [Range(0,5)] [SerializeField]
+    private float numberOfSteps = 3;
     private float tileSpacing = 1.0f;
-    bool[,] cellmap = new bool[100,100];
+    [SerializeField]
+    bool[,] cellmap = new bool[50,50];
     [SerializeField]
     private string seed;
     public GameObject[] tiles = new GameObject[2];
     public bool useRandomSeed;
-
+    
     private bool[,] InitializeMap(bool[,] map)
     {
         if (useRandomSeed)
@@ -26,6 +30,7 @@ public class GenerateMap : MonoBehaviour
             seed = DateTime.Now.Ticks.ToString();
         }
         System.Random pseudoRandom = new System.Random(seed.GetHashCode());
+        
         for (int i = 0; i < map.GetLength(0); i++)
         {
             for (int j = 0; j < map.GetLength(1); j++)
@@ -71,6 +76,8 @@ public class GenerateMap : MonoBehaviour
                         newMap[i, j] = false;
                     }
                 }
+
+                
             }
         }
 
@@ -110,14 +117,17 @@ public class GenerateMap : MonoBehaviour
         {
             for (int j = 0; j < map.GetLength(1); j++)
             {
+                GameObject tile;
                 if (map[i, j])
                 {
-                    Instantiate(tiles[0], new Vector3(tileSpacing * i,0,tileSpacing * j), Quaternion.identity);
+                    tile = Instantiate(tiles[0], new Vector3(tileSpacing * i,0,tileSpacing * j), Quaternion.identity);
                 }
                 else
                 {
-                    Instantiate(tiles[1], new Vector3(tileSpacing * i,0,tileSpacing * j), Quaternion.identity);
+                    tile = Instantiate(tiles[1], new Vector3(tileSpacing * i,0,tileSpacing * j), Quaternion.identity);
                 }
+
+                tile.transform.SetParent(this.transform, false);
             }
         }
     }
@@ -131,14 +141,27 @@ public class GenerateMap : MonoBehaviour
         }
         PopulateWorld(finalMap);
     }
+
+    private void CleanWorld()
+    {
+        for (int i = 0; i < cellmap.GetLength(0); i++)
+        {
+            for (int j = 0; j < cellmap.GetLength(1); j++)
+            {
+                cellmap[i, j] = false;
+            }
+        }
+
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+    }
     
     // Start is called before the first frame update
     void Start()
     {
         GenerateWorld();
-        
-        
-        
     }
 
     // Update is called once per frame
@@ -146,6 +169,7 @@ public class GenerateMap : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            CleanWorld();
             GenerateWorld();
         }
     }
